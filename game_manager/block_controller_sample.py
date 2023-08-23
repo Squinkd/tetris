@@ -72,6 +72,7 @@ class Block_Controller(object):
                 ###            strategy = (direction0, x0, 1, 1)
                 ###            LatestEvalValue = EvalValue
         # search best nextMove <--
+        #nextMove["strategy"]["use_hold_function"] = "y"
 
         print("===", datetime.now() - t1)
         nextMove["strategy"]["direction"] = strategy[0]
@@ -203,7 +204,7 @@ class Block_Controller(object):
         #### maxDy
         #maxDy = max(BlockMaxY) - min(BlockMaxY)
         #### maxHeight
-        #maxHeight = max(BlockMaxY) - fullLines
+        maxHeight = max(BlockMaxY) - fullLines
 
         ## statistical data
         #### stdY
@@ -220,17 +221,28 @@ class Block_Controller(object):
 
         # calc Evaluation Value
         score = 0
-        score = score + fullLines * 10.0           # try to delete line 
-        score = score - nHoles * 1.0               # try not to make hole
+        if max(BlockMaxY) >= 10:
+            score = score + fullLines * 30.0
+        else:
+            if fullLines >= 4:
+                score = score + fullLines * 100.0
+            elif fullLines >= 1:
+                score = score - fullLines * 50.0
+            else:
+                score = score + fullLines * 2
+        #score = score + fullLines * 0.0           # try to delete line 
+        score = score - nHoles * 65.0               # try not to make hole
         score = score - nIsolatedBlocks * 1.0      # try not to make isolated block
         score = score - absDy * 1.0                # try to put block smoothly
         #score = score - maxDy * 0.3                # maxDy
-        #score = score - maxHeight * 5              # maxHeight
+        score = score - maxHeight * 20              # maxHeight
         #score = score - stdY * 1.0                 # statistical data
         #score = score - stdDY * 0.01               # statistical data
 
         # print(score, fullLines, nHoles, nIsolatedBlocks, maxHeight, stdY, stdDY, absDy, BlockMaxY)
         return score
+    
+    
 
 
 BLOCK_CONTROLLER_SAMPLE = Block_Controller()
